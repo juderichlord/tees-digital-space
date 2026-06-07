@@ -33,6 +33,16 @@ export default function LandingPage() {
       <Navbar />
       <div className="w-full max-w-6xl px-5 pt-24 pb-16">
         <Hero />
+
+        {/* Intro Image */}
+        <div className="my-12 flex justify-center">
+          <img
+            src="https://lwejromtgdfysmvpmbvx.supabase.co/storage/v1/object/public/images/WhatsApp%20Image%202026-06-07%20at%2010.47.59%20PM.jpeg"
+            alt="TDS Intro"
+            className="w-full max-w-4xl rounded-3xl shadow-2xl border border-gray-800"
+          />
+        </div>
+
         <Portfolio videos={videos} />
         <Pricing tiers={tiers} />
         <ContactForm />
