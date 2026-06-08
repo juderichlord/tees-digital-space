@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 function YouTubeEmbed({ videoId }) {
+  // Using iframe API for reliable autoplay
   return (
     <iframe
       className="absolute inset-0 w-full h-full"
@@ -13,8 +14,25 @@ function YouTubeEmbed({ videoId }) {
 }
 
 function VideoPlayer({ src }) {
+  const videoRef = useRef(null)
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true
+      videoRef.current.play().catch(() => {
+        // Autoplay blocked? Fallback: add a click listener to play
+        const playOnClick = () => {
+          videoRef.current.play()
+          document.removeEventListener('click', playOnClick)
+        }
+        document.addEventListener('click', playOnClick)
+      })
+    }
+  }, [])
+
   return (
     <video
+      ref={videoRef}
       className="absolute inset-0 w-full h-full object-cover"
       src={src}
       autoPlay

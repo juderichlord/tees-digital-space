@@ -10,6 +10,7 @@ import Footer from '../components/Footer'
 export default function LandingPage() {
   const [videos, setVideos] = useState([])
   const [tiers, setTiers] = useState([])
+  const [introImage, setIntroImage] = useState(null)
 
   useEffect(() => {
     async function fetchData() {
@@ -24,6 +25,13 @@ export default function LandingPage() {
         .select('*')
         .order('display_order', { ascending: true })
       if (tData) setTiers(tData)
+
+      // Fetch intro image
+      const { data: setting } = await supabase
+        .from('site_settings')
+        .select('intro_image_url')
+        .single()
+      if (setting?.intro_image_url) setIntroImage(setting.intro_image_url)
     }
     fetchData()
   }, [])
@@ -34,14 +42,16 @@ export default function LandingPage() {
       <div className="w-full max-w-6xl px-5 pt-24 pb-16">
         <Hero />
 
-        {/* Intro Image */}
-        <div className="my-12 flex justify-center">
-          <img
-            src="https://lwejromtgdfysmvpmbvx.supabase.co/storage/v1/object/public/images/WhatsApp%20Image%202026-06-07%20at%2010.47.59%20PM.jpeg"
-            alt="TDS Intro"
-            className="w-full max-w-4xl rounded-3xl shadow-2xl border border-gray-800"
-          />
-        </div>
+        {/* Dynamic Intro Image */}
+        {introImage && (
+  <div className="my-8 flex justify-center">
+    <img
+      src={introImage}
+      alt="TDS Intro"
+      className="w-auto max-w-sm h-auto rounded-2xl shadow-lg border border-gray-800"
+    />
+  </div>
+)}
 
         <Portfolio videos={videos} />
         <Pricing tiers={tiers} />

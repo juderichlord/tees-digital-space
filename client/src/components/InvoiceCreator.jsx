@@ -13,9 +13,12 @@ export default function InvoiceCreator() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    supabase.from('price_tiers').select('*').then(({ data }) => {
-      if (data) setTiers(data)
-    })
+    supabase
+      .from('price_tiers')
+      .select('*')
+      .then(({ data }) => {
+        if (data) setTiers(data)
+      })
   }, [])
 
   const createInvoice = async () => {
@@ -40,7 +43,7 @@ export default function InvoiceCreator() {
         .insert({
           name: clientName,
           email: clientEmail || null,
-          whatsapp: clientWhatsapp || null
+          whatsapp: clientWhatsapp || null,
         })
         .select('id')
         .single()
@@ -56,15 +59,13 @@ export default function InvoiceCreator() {
     const invoiceNumber = 'INV-' + Date.now()
 
     // 3. Insert invoice
-    const { error: invoiceError } = await supabase
-      .from('invoices')
-      .insert({
-        client_id: clientId,
-        tier_id: selectedTier,
-        amount: parseFloat(amount),
-        status: 'pending',
-        invoice_number: invoiceNumber
-      })
+    const { error: invoiceError } = await supabase.from('invoices').insert({
+      client_id: clientId,
+      tier_id: selectedTier,
+      amount: parseFloat(amount),
+      status: 'pending',
+      invoice_number: invoiceNumber,
+    })
 
     if (invoiceError) {
       setStatus('Error creating invoice: ' + invoiceError.message)
@@ -73,7 +74,7 @@ export default function InvoiceCreator() {
     }
 
     // 4. Build WhatsApp message
-    const tier = tiers.find(t => t.id === selectedTier)
+    const tier = tiers.find((t) => t.id === selectedTier)
     const tierName = tier ? tier.name : 'Selected Tier'
     const bankDetails = 'Bank: Opay\nAccount Name: Tina Oreke\nAccount Number: 8157568408'
     const message = `Hello ${clientName},\n\n` +
@@ -85,10 +86,6 @@ export default function InvoiceCreator() {
 
     setPaymentMessage(message)
     setStatus('Invoice created successfully!')
-
-    // Optionally reset form
-    // setClientName(''); setClientEmail(''); setClientWhatsapp(''); setSelectedTier(''); setAmount('');
-
     setLoading(false)
   }
 
@@ -96,11 +93,9 @@ export default function InvoiceCreator() {
     if (!paymentMessage) return '#'
     const encoded = encodeURIComponent(paymentMessage)
     if (clientWhatsapp) {
-      // Open chat with the client's number (strip any non-numeric characters)
       const phone = clientWhatsapp.replace(/\D/g, '')
       return `https://wa.me/${phone}?text=${encoded}`
     }
-    // Fallback: share to any number (opens WhatsApp picker)
     return `https://wa.me/?text=${encoded}`
   }
 
@@ -111,31 +106,31 @@ export default function InvoiceCreator() {
         <input
           placeholder="Client Name"
           value={clientName}
-          onChange={e => setClientName(e.target.value)}
+          onChange={(e) => setClientName(e.target.value)}
           className="w-full p-4 bg-black border border-gray-700 rounded-xl text-white"
         />
         <input
           placeholder="Client Email (optional)"
           value={clientEmail}
-          onChange={e => setClientEmail(e.target.value)}
+          onChange={(e) => setClientEmail(e.target.value)}
           className="w-full p-4 bg-black border border-gray-700 rounded-xl text-white"
         />
         <input
           placeholder="Client WhatsApp (e.g., 2348012345678)"
           value={clientWhatsapp}
-          onChange={e => setClientWhatsapp(e.target.value)}
+          onChange={(e) => setClientWhatsapp(e.target.value)}
           className="w-full p-4 bg-black border border-gray-700 rounded-xl text-white"
         />
 
         <select
           value={selectedTier}
-          onChange={e => setSelectedTier(e.target.value)}
+          onChange={(e) => setSelectedTier(e.target.value)}
           className="w-full p-4 bg-black border border-gray-700 rounded-xl text-white"
         >
           <option value="">Select a tier</option>
-          {tiers.map(t => (
+          {tiers.map((t) => (
             <option key={t.id} value={t.id}>
-              {t.name} (₦{t.min_price} - ₦{t.max_price})
+              {t.name} (₦{t.min_price} – ₦{t.max_price})
             </option>
           ))}
         </select>
@@ -144,7 +139,7 @@ export default function InvoiceCreator() {
           type="number"
           placeholder="Amount (₦)"
           value={amount}
-          onChange={e => setAmount(e.target.value)}
+          onChange={(e) => setAmount(e.target.value)}
           className="w-full p-4 bg-black border border-gray-700 rounded-xl text-white"
         />
 

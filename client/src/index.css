@@ -29,3 +29,11 @@ body {
   letter-spacing: 3px;
   color: #00e6ff;
 }
+@keyframes loading-bar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 1.5s infinite linear;
+}
