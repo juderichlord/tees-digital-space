@@ -9,7 +9,8 @@ import ClientsList from '../components/ClientsList'
 import AdminOverview from '../components/AdminOverview'
 import SiteImage from '../components/SiteImage'
 import BrandSettings from '../components/BrandSettings'
-import NavbarSettings from '../components/NavbarSettings'   // <-- new import
+import NavbarSettings from '../components/NavbarSettings'
+import UpdateNotification from '../components/UpdateNotification'   // PWA update banner
 import {
   LayoutDashboard,
   Video,
@@ -42,7 +43,7 @@ const navItems = [
     children: [
       { to: '/admin/settings/image', label: 'Intro Image' },
       { to: '/admin/settings/branding', label: 'Branding' },
-      { to: '/admin/settings/navbar', label: 'Navbar Brand' },   // <-- new menu item
+      { to: '/admin/settings/navbar', label: 'Navbar Brand' },
     ],
   },
 ]
@@ -194,10 +195,13 @@ export default function AdminDashboard() {
             <Route path="clients" element={<ClientsList />} />
             <Route path="settings/image" element={<SiteImage />} />
             <Route path="settings/branding" element={<BrandSettings />} />
-            <Route path="settings/navbar" element={<NavbarSettings />} />  {/* <-- new route */}
+            <Route path="settings/navbar" element={<NavbarSettings />} />
           </Routes>
         </main>
       </div>
+
+      {/* PWA Update Notification */}
+      <UpdateNotification />
     </div>
   )
 }

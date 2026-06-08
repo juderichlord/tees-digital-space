@@ -6,6 +6,7 @@ import Portfolio from '../components/Portfolio'
 import Pricing from '../components/Pricing'
 import ContactForm from '../components/ContactForm'
 import Footer from '../components/Footer'
+import UpdateNotification from '../components/UpdateNotification'
 
 export default function LandingPage() {
   const [videos, setVideos] = useState([])
@@ -14,10 +15,12 @@ export default function LandingPage() {
 
   useEffect(() => {
     async function fetchData() {
+      // Fetch only the latest 6 videos
       const { data: vData } = await supabase
         .from('videos')
         .select('*')
-        .order('display_order', { ascending: true })
+        .order('created_at', { ascending: false })
+        .limit(6)
       if (vData) setVideos(vData)
 
       const { data: tData } = await supabase
@@ -42,22 +45,25 @@ export default function LandingPage() {
       <div className="w-full max-w-6xl px-5 pt-24 pb-16">
         <Hero />
 
-        {/* Dynamic Intro Image */}
+        {/* Dynamic Intro Image (quarter size) */}
         {introImage && (
-  <div className="my-8 flex justify-center">
-    <img
-      src={introImage}
-      alt="TDS Intro"
-      className="w-auto max-w-sm h-auto rounded-2xl shadow-lg border border-gray-800"
-    />
-  </div>
-)}
+          <div className="my-8 flex justify-center">
+            <img
+              src={introImage}
+              alt="TDS Intro"
+              className="w-auto max-w-sm h-auto rounded-2xl shadow-lg border border-gray-800"
+            />
+          </div>
+        )}
 
         <Portfolio videos={videos} />
         <Pricing tiers={tiers} />
         <ContactForm />
         <Footer />
       </div>
+
+      {/* PWA Update Notification */}
+      <UpdateNotification />
     </div>
   )
 }
