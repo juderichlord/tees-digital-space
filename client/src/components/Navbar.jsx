@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
 export default function Navbar() {
@@ -20,12 +19,6 @@ export default function Navbar() {
       <a href="/" className="font-display text-xl text-white">
         {brand}
       </a>
-      <Link
-        to="/admin/login"
-        className="text-xs text-gray-400 hover:text-[#00e6ff] transition"
-      >
-        Admin
-      </Link>
     </nav>
   )
 }
