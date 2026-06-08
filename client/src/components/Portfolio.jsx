@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 
 function YouTubeEmbed({ videoId }) {
-  // Using iframe API for reliable autoplay
   return (
     <iframe
       className="absolute inset-0 w-full h-full"
       src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&playsinline=1&modestbranding=1`}
-      allow="autoplay; encrypted-media"
+      allow="autoplay; encrypted-media; picture-in-picture"
       allowFullScreen
       title="YouTube video"
+      loading="lazy"    // improves performance
     />
   )
 }
@@ -20,12 +20,14 @@ function VideoPlayer({ src }) {
     if (videoRef.current) {
       videoRef.current.muted = true
       videoRef.current.play().catch(() => {
-        // Autoplay blocked? Fallback: add a click listener to play
-        const playOnClick = () => {
+        // Autoplay blocked – add a touch/click fallback
+        const playOnTouch = () => {
           videoRef.current.play()
-          document.removeEventListener('click', playOnClick)
+          document.removeEventListener('touchstart', playOnTouch)
+          document.removeEventListener('click', playOnTouch)
         }
-        document.addEventListener('click', playOnClick)
+        document.addEventListener('touchstart', playOnTouch)
+        document.addEventListener('click', playOnTouch)
       })
     }
   }, [])
@@ -39,6 +41,8 @@ function VideoPlayer({ src }) {
       muted
       loop
       playsInline
+      preload="metadata"
+      loading="lazy"
     />
   )
 }
