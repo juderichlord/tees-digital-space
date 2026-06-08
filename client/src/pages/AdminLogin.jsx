@@ -16,15 +16,13 @@ export default function AdminLogin() {
     setError('')
     const { error: signInError } = await signIn(email, password)
     if (signInError) {
+      // Generic error message (don't leak whether email exists)
       setError('Invalid email or password. Please try again.')
       setLoading(false)
     } else {
       navigate('/admin')
     }
   }
-
-  // rest of the JSX remains the same (the form with inputs)
-}
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
