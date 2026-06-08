@@ -1,4 +1,4 @@
-// sw.js - PWA Service Worker with auto-update
+// sw.js - Reliable PWA Service Worker (no cache for API/HEAD/POST)
 const CACHE_NAME = 'tds-cache-v1';
 const urlsToCache = [
   '/',
@@ -8,9 +8,9 @@ const urlsToCache = [
   '/icon-512.png'
 ];
 
-// Install event – cache shell
+// Install event – cache essential files
 self.addEventListener('install', event => {
-  self.skipWaiting(); // activate immediately
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
@@ -25,45 +25,35 @@ self.addEventListener('activate', event => {
           .filter(name => name !== CACHE_NAME)
           .map(name => caches.delete(name))
       );
-    }).then(() => self.clients.claim()) // take control of all clients
+    }).then(() => self.clients.claim())
   );
 });
 
-// Fetch event – network-first for navigation, cache-first for assets
+// Fetch event – only cache GET for http/https, skip API/storage
 self.addEventListener('fetch', event => {
   const { request } = event;
 
-  // For page navigations, use network-first so updates are fetched immediately
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          // Update cache with the latest page
-          const clonedResponse = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, clonedResponse));
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
+  // Only handle GET requests with http or https
+  if (request.method !== 'GET' || !request.url.startsWith('http')) {
     return;
   }
 
-  // For other assets, use cache-first with network fallback
+  // Skip Supabase API / Storage calls (they're dynamic)
+  if (request.url.includes('supabase.co') || request.url.includes('storage/v1')) {
+    return;
+  }
+
   event.respondWith(
-    caches.match(request).then(cachedResponse => {
-      return cachedResponse || fetch(request).then(networkResponse => {
+    caches.match(request).then(cached => {
+      return cached || fetch(request).then(networkResponse => {
         return caches.open(CACHE_NAME).then(cache => {
-          cache.put(request, networkResponse.clone());
+          // Only cache same-origin or fonts/scripts
+          if (new URL(request.url).origin === location.origin) {
+            cache.put(request, networkResponse.clone());
+          }
           return networkResponse;
         });
       });
     })
   );
-});
-
-// Listen for message from page to trigger update
-self.addEventListener('message', event => {
-  if (event.data === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
 });
